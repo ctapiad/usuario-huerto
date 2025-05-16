@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fullstack.usuario.model.Usuario;
+import com.fullstack.usuario.model.dto.UsuarioDto;
 import com.fullstack.usuario.service.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,6 +63,14 @@ public class UsuarioController {
     public ResponseEntity<String> modificarUsuario(@RequestBody Usuario usuario){
         if(usuarioService1.modificarUsuario(usuario) != null){
             return ResponseEntity.ok(usuarioService1.modificarUsuario(usuario));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/obtenerUsuario/{rut}")
+    public ResponseEntity<UsuarioDto> obtenerUsuarioDto(@PathVariable String rut){
+        if (usuarioService1.obtenerUsuarioDto(rut) != null){
+            return ResponseEntity.ok(usuarioService1.obtenerUsuarioDto(rut));
         }
         return ResponseEntity.notFound().build();
     }

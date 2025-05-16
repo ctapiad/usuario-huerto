@@ -3,8 +3,7 @@ package com.fullstack.usuario.model.entity;
 import java.util.Date;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+
 import jakarta.persistence.Id;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -16,7 +15,7 @@ public class UsuarioEntity {
 
     @Id
     private String rut;
-    
+
     private String nombre;
     private String apellido_paterno;
     private String correo;

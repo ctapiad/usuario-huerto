@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fullstack.usuario.model.Usuario;
+import com.fullstack.usuario.model.dto.UsuarioDto;
 import com.fullstack.usuario.model.entity.UsuarioEntity;
 import com.fullstack.usuario.repository.UsuarioRepository;
 
@@ -158,6 +159,24 @@ public class UsuarioService {
         }
     } catch (Exception e) {
             System.out.println("Error al modificar el usuario: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    public UsuarioDto obtenerUsuarioDto(String rut){
+        try {
+            UsuarioEntity usuario = usuarioRepository.findByRut(rut);
+            UsuarioDto nuevoUsuario = new UsuarioDto(
+                usuario.getRut(),
+                usuario.getNombre(),
+                usuario.getApellido_paterno(),
+                usuario.getCorreo(),
+                usuario.getTelefono()
+            );
+            return nuevoUsuario;
+        } catch (Exception e) {
+            System.out.println("Error al obtener el usuario: " + e.getMessage());
             return null;
         }
     }
