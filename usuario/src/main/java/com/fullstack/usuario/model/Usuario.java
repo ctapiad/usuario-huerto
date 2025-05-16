@@ -15,7 +15,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Usuario {
 
-    private String rut,nombre,apellido_paterno,correo,direccion,contraseña,rol;
+    private int id;
+    private String rut;
+    private String nombre;
+    private String apellido_paterno;
+    private String correo;
+    private String direccion;
+    private String contrasena;
+    private String rol;
     private int telefono;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date fecha_nacimiento;

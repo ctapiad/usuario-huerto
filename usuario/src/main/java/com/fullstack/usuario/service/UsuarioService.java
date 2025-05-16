@@ -32,15 +32,16 @@ public class UsuarioService {
             List<Usuario> usuarios = new ArrayList<>();
             for (UsuarioEntity usuario : listaUsuario){
                 Usuario nuevoUsuario = new Usuario();
+                nuevoUsuario.setId(usuario.getId());
                 nuevoUsuario.setRut(usuario.getRut());
                 nuevoUsuario.setNombre(usuario.getNombre());
-                nuevoUsuario.setApellido_paterno(usuario.getApellidoPaterno());
+                nuevoUsuario.setApellido_paterno(usuario.getApellido_paterno());
                 nuevoUsuario.setCorreo(usuario.getCorreo());
                 nuevoUsuario.setDireccion(usuario.getDireccion());
-                nuevoUsuario.setContraseña(usuario.getContraseña());
+                nuevoUsuario.setContrasena(usuario.getContrasena());
                 nuevoUsuario.setRol(usuario.getRol());
                 nuevoUsuario.setTelefono(usuario.getTelefono());
-                nuevoUsuario.setFecha_nacimiento(usuario.getFechaNacimiento());
+                nuevoUsuario.setFecha_nacimiento(usuario.getFecha_nacimiento());
                 usuarios.add(nuevoUsuario);
             }
             return usuarios;
@@ -61,15 +62,16 @@ public class UsuarioService {
                 throw new IllegalArgumentException("El usuario no existe");
             }
             Usuario Usuario = new Usuario();
+            Usuario.setId(usuarioEntity.getId());
             Usuario.setRut(usuarioEntity.getRut());
             Usuario.setNombre(usuarioEntity.getNombre());
-            Usuario.setApellido_paterno(usuarioEntity.getApellidoPaterno());
+            Usuario.setApellido_paterno(usuarioEntity.getApellido_paterno());
             Usuario.setCorreo(usuarioEntity.getCorreo());
             Usuario.setDireccion(usuarioEntity.getDireccion());
-            Usuario.setContraseña(usuarioEntity.getContraseña());
+            Usuario.setContrasena(usuarioEntity.getContrasena());
             Usuario.setRol(usuarioEntity.getRol());
             Usuario.setTelefono(usuarioEntity.getTelefono());
-            Usuario.setFecha_nacimiento(usuarioEntity.getFechaNacimiento());
+            Usuario.setFecha_nacimiento(usuarioEntity.getFecha_nacimiento());
             return Usuario;
         } catch (IllegalArgumentException e) {
             System.out.println("Error de validación: " + e.getMessage());
@@ -83,18 +85,17 @@ public class UsuarioService {
     public String crearUsuario(Usuario usuario){
         try {
             Boolean estado = usuarioRepository.existsByRut(usuario.getRut());
-            System.out.println();
             if (estado != true){
                 UsuarioEntity usuarioNuevo = new UsuarioEntity();
                 usuarioNuevo.setRut(usuario.getRut());
                 usuarioNuevo.setNombre(usuario.getNombre());
-                usuarioNuevo.setApellidoPaterno(usuario.getApellido_paterno());
+                usuarioNuevo.setApellido_paterno(usuario.getApellido_paterno());
                 usuarioNuevo.setCorreo(usuario.getCorreo());
                 usuarioNuevo.setDireccion(usuario.getDireccion());
-                usuarioNuevo.setContraseña(usuario.getContraseña());
+                usuarioNuevo.setContrasena(usuario.getContrasena());
                 usuarioNuevo.setRol(usuario.getRol());
                 usuarioNuevo.setTelefono(usuario.getTelefono());
-                usuarioNuevo.setFechaNacimiento(usuario.getFecha_nacimiento());
+                usuarioNuevo.setFecha_nacimiento(usuario.getFecha_nacimiento());
                 usuarioRepository.save(usuarioNuevo);
                 return "Usuario creado correctamente";
             }
@@ -134,13 +135,13 @@ public class UsuarioService {
                 UsuarioEntity usuarioExistente = usuarioRepository.findByRut(usuario.getRut());
                 if (usuarioExistente != null) {
                 usuarioExistente.setNombre(usuario.getNombre());
-                usuarioExistente.setApellidoPaterno(usuario.getApellido_paterno());
+                usuarioExistente.setApellido_paterno(usuario.getApellido_paterno());
                 usuarioExistente.setCorreo(usuario.getCorreo());
                 usuarioExistente.setDireccion(usuario.getDireccion());
-                usuarioExistente.setContraseña(usuario.getContraseña());
+                usuarioExistente.setContrasena(usuario.getContrasena());
                 usuarioExistente.setRol(usuario.getRol());
                 usuarioExistente.setTelefono(usuario.getTelefono());
-                usuarioExistente.setFechaNacimiento(usuario.getFecha_nacimiento());
+                usuarioExistente.setFecha_nacimiento(usuario.getFecha_nacimiento());
                 usuarioRepository.save(usuarioExistente);
                 System.out.println("Usuario con rut " + usuario.getRut() + " modificado correctamente");
                 return "";

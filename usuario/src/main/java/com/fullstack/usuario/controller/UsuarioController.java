@@ -15,7 +15,8 @@ import com.fullstack.usuario.model.Usuario;
 import com.fullstack.usuario.service.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 public class UsuarioController {
@@ -42,6 +43,10 @@ public class UsuarioController {
 
     @PostMapping("/usuarios")
     public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario){
+        System.out.println("Usuario: " + usuario);
+        if(usuarioService1.crearUsuario(usuario) != null){
+            return ResponseEntity.ok(usuarioService1.crearUsuario(usuario));
+        }
         return ResponseEntity.notFound().build();
     }
 
