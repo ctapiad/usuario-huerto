@@ -11,7 +11,7 @@ public class SwaggerConfig {
         public OpenAPI openAPI() {
             return new OpenAPI()
                     .info(new io.swagger.v3.oas.models.info.Info()
-                            .title("API REST de Usuario")
+                            .title("Usuario API")
                             .version("1.0.0")
                             .description("API para gestionar usuarios"));
         }
