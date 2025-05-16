@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import com.fullstack.usuario.model.entity.UsuarioEntity;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Integer> {
+public interface UsuarioRepository extends JpaRepository<UsuarioEntity, String> {
 
     UsuarioEntity findByRut(String rut);
     void deleteByRut(String rut);

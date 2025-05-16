@@ -15,10 +15,8 @@ import lombok.Data;
 public class UsuarioEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
     private String rut;
+    
     private String nombre;
     private String apellido_paterno;
     private String correo;

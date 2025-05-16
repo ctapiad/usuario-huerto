@@ -10,6 +10,8 @@ import com.fullstack.usuario.model.Usuario;
 import com.fullstack.usuario.model.entity.UsuarioEntity;
 import com.fullstack.usuario.repository.UsuarioRepository;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class UsuarioService {
 
@@ -32,7 +34,7 @@ public class UsuarioService {
             List<Usuario> usuarios = new ArrayList<>();
             for (UsuarioEntity usuario : listaUsuario){
                 Usuario nuevoUsuario = new Usuario();
-                nuevoUsuario.setId(usuario.getId());
+                //nuevoUsuario.setId(usuario.getId());
                 nuevoUsuario.setRut(usuario.getRut());
                 nuevoUsuario.setNombre(usuario.getNombre());
                 nuevoUsuario.setApellido_paterno(usuario.getApellido_paterno());
@@ -62,7 +64,7 @@ public class UsuarioService {
                 throw new IllegalArgumentException("El usuario no existe");
             }
             Usuario Usuario = new Usuario();
-            Usuario.setId(usuarioEntity.getId());
+            //Usuario.setId(usuarioEntity.getId());
             Usuario.setRut(usuarioEntity.getRut());
             Usuario.setNombre(usuarioEntity.getNombre());
             Usuario.setApellido_paterno(usuarioEntity.getApellido_paterno());
@@ -110,6 +112,7 @@ public class UsuarioService {
     }
 
 
+    @Transactional
     public String borrarUsuario(String rut){
 
         try {
