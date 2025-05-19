@@ -12,7 +12,7 @@ public class SwaggerConfig {
             return new OpenAPI()
                     .info(new io.swagger.v3.oas.models.info.Info()
                             .title("Usuario API")
-                            .version("1.0.0")
+                            .version("1.0")
                             .description("API para gestionar usuarios"));
         }
     }

@@ -29,13 +29,13 @@ public class UsuarioService {
             List<UsuarioEntity> listaUsuario = (List<UsuarioEntity>) usuarioRepository.findAll();
 
             if (listaUsuario.isEmpty()) {
-                throw new IllegalArgumentException("No hay usuarios registrados en la base de datos");
+                System.out.println("No hay usuarios registrados en la base de datos");
+                return new ArrayList<>();
             } 
 
             List<Usuario> usuarios = new ArrayList<>();
             for (UsuarioEntity usuario : listaUsuario){
                 Usuario nuevoUsuario = new Usuario();
-                //nuevoUsuario.setId(usuario.getId());
                 nuevoUsuario.setRut(usuario.getRut());
                 nuevoUsuario.setNombre(usuario.getNombre());
                 nuevoUsuario.setApellido_paterno(usuario.getApellido_paterno());

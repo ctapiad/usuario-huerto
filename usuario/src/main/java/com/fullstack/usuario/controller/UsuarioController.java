@@ -27,13 +27,15 @@ public class UsuarioController {
 
     @Operation (summary = "Mostrar todos los usuarios")
     @GetMapping("/usuarios")
-    public ResponseEntity <List<Usuario>> mostrarUsuarios(){
-        if (usuarioService1.getAllUsuarios() != null) {
-            return ResponseEntity.ok(usuarioService1.getAllUsuarios());
+    public ResponseEntity<List<Usuario>> mostrarUsuarios(){
+        List<Usuario> usuarios = usuarioService1.getAllUsuarios();
+        if (usuarios == null || usuarios.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(usuarios);
     }
 
+    @Operation (summary = "Mostrar un usuario por rut")
     @GetMapping("/usuarios/{rut}")
     public ResponseEntity<Usuario> obtenerUsuario(@PathVariable String rut){
         if (usuarioService1.obtenerUsuario(rut) != null) {
@@ -42,6 +44,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation (summary = "Crear un usuario")
     @PostMapping("/usuarios")
     public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario){
         System.out.println("Usuario: " + usuario);
@@ -51,6 +54,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation (summary = "Eliminar un usuario por rut")
     @DeleteMapping("/usuarios/{rut}")
     public ResponseEntity<String> borrarUsuario(@PathVariable String rut){
         if (usuarioService1.borrarUsuario(rut) != null){
@@ -59,6 +63,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation (summary = "Modificar un usuario")
     @PutMapping("/usuarios")
     public ResponseEntity<String> modificarUsuario(@RequestBody Usuario usuario){
         if(usuarioService1.modificarUsuario(usuario) != null){
@@ -67,6 +72,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation (summary = "Mostrar un usuario DTO por rut")
     @GetMapping("/obtenerUsuario/{rut}")
     public ResponseEntity<UsuarioDto> obtenerUsuarioDto(@PathVariable String rut){
         if (usuarioService1.obtenerUsuarioDto(rut) != null){
