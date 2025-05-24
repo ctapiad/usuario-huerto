@@ -57,11 +57,12 @@ public class UsuarioController {
     @Operation (summary = "Eliminar un usuario por rut")
     @DeleteMapping("/usuarios/{rut}")
     public ResponseEntity<String> borrarUsuario(@PathVariable String rut){
-        if (usuarioService1.borrarUsuario(rut) != null){
-            return ResponseEntity.ok(usuarioService1.borrarUsuario(rut));
-        }
+        String resultado = usuarioService1.borrarUsuario(rut);
+            if (resultado == null) {
         return ResponseEntity.notFound().build();
     }
+    return ResponseEntity.ok(resultado);
+}
 
     @Operation (summary = "Modificar un usuario")
     @PutMapping("/usuarios")

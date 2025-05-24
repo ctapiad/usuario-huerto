@@ -65,7 +65,6 @@ public class UsuarioService {
                 throw new IllegalArgumentException("El usuario no existe");
             }
             Usuario Usuario = new Usuario();
-            //Usuario.setId(usuarioEntity.getId());
             Usuario.setRut(usuarioEntity.getRut());
             Usuario.setNombre(usuarioEntity.getNombre());
             Usuario.setApellido_paterno(usuarioEntity.getApellido_paterno());
@@ -117,10 +116,10 @@ public class UsuarioService {
     public String borrarUsuario(String rut){
 
         try {
-            if (usuarioRepository.existsByRut(rut)){
+            Boolean estado = usuarioRepository.existsByRut(rut);
+            if (estado == true){
                 usuarioRepository.deleteByRut(rut);
-                System.out.println("Usuario con rut " + rut + " eliminado correctamente");
-                return rut;
+                return "rut " + rut + " eliminado correctamente";
             }
             else {
                 System.out.println("El usuario con rut " + rut + " no existe");
