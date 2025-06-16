@@ -48,10 +48,11 @@ public class UsuarioController {
     @PostMapping("/usuarios")
     public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario){
         System.out.println("Usuario: " + usuario);
-        if(usuarioService1.crearUsuario(usuario) != null){
-            return ResponseEntity.ok(usuarioService1.crearUsuario(usuario));
+        String resultado = usuarioService1.crearUsuario(usuario);
+        if (resultado != null) {
+            return ResponseEntity.status(201).body(resultado);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.badRequest().body("El usuario ya existe o los datos son inválidos.");
     }
 
     @Operation (summary = "Eliminar un usuario por rut")
@@ -70,7 +71,7 @@ public class UsuarioController {
         if(usuarioService1.modificarUsuario(usuario) != null){
             return ResponseEntity.ok(usuarioService1.modificarUsuario(usuario));
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.badRequest().body("No se pudo modificar el usuario (no existe o datos inválidos).");
     }
 
     @Operation (summary = "Mostrar un usuario DTO por rut")
