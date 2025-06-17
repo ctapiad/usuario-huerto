@@ -1,9 +1,8 @@
-version: '3.8'
-service:
+services:
   java:
     build:
       context: .
       dockerfile: dockerfile
     ports:
       - "8080:8080"
-      command: ["java", "-jar", "/app.jar"]
+    command: ["java","-jar","app.jar"]
