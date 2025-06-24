@@ -171,6 +171,7 @@ public class UsuarioService {
                 usuario.getNombre(),
                 usuario.getApellido_paterno(),
                 usuario.getCorreo(),
+                usuario.getRol(),
                 usuario.getTelefono()
             );
             return nuevoUsuario;
