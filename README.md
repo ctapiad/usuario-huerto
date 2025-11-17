@@ -1,6 +1,10 @@
-# Sistema de Gestión de Usuarios - Productos del Campo
+# Sistema de Gestión de Usuarios - HuertoHogar
 
-Este proyecto es un microservicio de gestión de usuarios adaptado para trabajar con un sistema de productos del campo, utilizando una base de datos Oracle.
+Este proyecto es un microservicio de gestión de usuarios para el sistema HuertoHogar, utilizando MongoDB Atlas.
+
+## 🚀 API en Producción
+- **URL Base**: http://54.211.27.253:8081/api/usuarios
+- **Swagger UI**: http://54.211.27.253:8081/swagger-ui.html
 
 ## Estructura de la Base de Datos
 
