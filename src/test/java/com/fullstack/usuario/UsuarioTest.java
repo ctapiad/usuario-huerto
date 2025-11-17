@@ -1,11 +1,15 @@
 package com.fullstack.usuario;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import org.aspectj.lang.annotation.Before;
+import java.util.Date;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -31,24 +35,32 @@ public class UsuarioTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        usuario = new Usuario( "12.345.678-9", "Juan", "Pérez", "correo@gmail.com", 
-                               "Calle Falsa 123", "contrasena123", "ADMIN", 123456789, 
-                               new java.util.Date());
+        usuario = new Usuario();
+        usuario.setId("507f1f77bcf86cd799439011");
+        usuario.setNombre("Juan Pérez");
+        usuario.setEmail("juan.perez@huerto.cl");
+        usuario.setPassword("password123");
+        usuario.setFechaRegistro(new Date());
+        usuario.setDireccion("Calle Falsa 123");
+        usuario.setTelefono(123456789);
+        usuario.setIdComuna(1);
+        usuario.setIdTipoUsuario(2);
+
         usuarioEntity = new UsuarioEntity();
-        usuarioEntity.setRut("12.345.678-9");
-        usuarioEntity.setNombre("Juan");
-        usuarioEntity.setApellido_paterno("Pérez");
-        usuarioEntity.setCorreo("correo@gmail.com");
+        usuarioEntity.setId("507f1f77bcf86cd799439011");
+        usuarioEntity.setNombre("Juan Pérez");
+        usuarioEntity.setEmail("juan.perez@huerto.cl");
+        usuarioEntity.setPassword("password123");
+        usuarioEntity.setFechaRegistro(new Date());
         usuarioEntity.setDireccion("Calle Falsa 123");
-        usuarioEntity.setContrasena("contrasena123");
-        usuarioEntity.setRol("ADMIN");
         usuarioEntity.setTelefono(123456789);
-        usuarioEntity.setFecha_nacimiento(new java.util.Date());
+        usuarioEntity.setIdComuna(1);
+        usuarioEntity.setIdTipoUsuario(2);
     }
 
     @Test
     public void testCrearUsuario_nuevo(){
-        when(usuarioRepository.existsByRut(usuario.getRut())).thenReturn(false);
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
         when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuarioEntity);
 
         String result = usuarioService.crearUsuario(usuario);
@@ -56,47 +68,56 @@ public class UsuarioTest {
     }
 
     @Test
-    public void testCrearUsuario_existe() {
-    when(usuarioRepository.existsByRut(usuario.getRut())).thenReturn(true);
+    public void testCrearUsuario_emailExiste() {
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(true);
 
-    String result = usuarioService.crearUsuario(usuario);
-    assertEquals(null, result);
-}
-
-    @Test
-    public void testTraerUsuarioporRut() {
-        when(usuarioRepository.findByRut(usuario.getRut())).thenReturn(usuarioEntity);
-
-        Usuario result = usuarioService.obtenerUsuario(usuario.getRut());
-        assertEquals(usuario.getRut(), result.getRut());
-        assertEquals(usuario.getNombre(), result.getNombre());
+        String result = usuarioService.crearUsuario(usuario);
+        assertEquals("Ya existe un usuario con ese email", result);
     }
 
     @Test
-    public void testTraerUsuarioNoExiste() {
-        when(usuarioRepository.findByRut(usuario.getRut())).thenReturn(null);
+    public void testObtenerUsuarioPorId() {
+        when(usuarioRepository.findById(anyString())).thenReturn(Optional.of(usuarioEntity));
 
-        Usuario result = usuarioService.obtenerUsuario(usuario.getRut());
+        Usuario result = usuarioService.obtenerUsuario("507f1f77bcf86cd799439011");
+        assertNotNull(result);
+        assertEquals(usuario.getId(), result.getId());
+        assertEquals(usuario.getNombre(), result.getNombre());
+        assertEquals(usuario.getEmail(), result.getEmail());
+    }
+
+    @Test
+    public void testObtenerUsuarioNoExiste() {
+        when(usuarioRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        Usuario result = usuarioService.obtenerUsuario("507f1f77bcf86cd799439011");
         assertEquals(null, result);
     }
 
     @Test
-    public void testActualizarUsuario_existe() {
-        when(usuarioRepository.existsByRut(usuario.getRut())).thenReturn(true);
-        when(usuarioRepository.findByRut(usuario.getRut())).thenReturn(usuarioEntity);
+    public void testObtenerUsuarioPorEmail() {
+        when(usuarioRepository.findByEmail(anyString())).thenReturn(Optional.of(usuarioEntity));
+
+        Usuario result = usuarioService.obtenerUsuarioPorEmail("juan.perez@huerto.cl");
+        assertNotNull(result);
+        assertEquals(usuario.getEmail(), result.getEmail());
+    }
+
+    @Test
+    public void testModificarUsuario_existe() {
+        when(usuarioRepository.findById(anyString())).thenReturn(Optional.of(usuarioEntity));
         when(usuarioRepository.save(any(UsuarioEntity.class))).thenReturn(usuarioEntity);
 
         String result = usuarioService.modificarUsuario(usuario);
-        assertEquals("", result);
+        assertTrue(result.contains("modificado correctamente"));
     }
 
     @Test
     public void testBorrarUsuario() {
-        when(usuarioRepository.existsByRut(usuario.getRut())).thenReturn(true);
-        doNothing().when(usuarioRepository).deleteByRut("12.345.678-9");
+        when(usuarioRepository.existsById(anyString())).thenReturn(true);
 
-        String result = usuarioService.borrarUsuario(usuario.getRut());
-        assertEquals("rut " + usuario.getRut() + " eliminado correctamente", result);
+        String result = usuarioService.borrarUsuario("507f1f77bcf86cd799439011");
+        assertTrue(result.contains("eliminado correctamente"));
     }
 
 }

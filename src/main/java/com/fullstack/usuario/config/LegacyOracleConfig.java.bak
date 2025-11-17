@@ -1,0 +1,51 @@
+package com.fullstack.usuario.config;
+
+/*
+ * NOTA: Esta configuración está deshabilitada porque ya no usamos Oracle Database.
+ * El proyecto ha sido migrado a MongoDB.
+ */
+
+/*
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+
+import jakarta.annotation.PostConstruct;
+import java.net.URL;
+
+@Configuration
+public class OracleWalletConfig {
+
+    @PostConstruct
+    public void configureWallet() {
+        try {
+            // Intentar obtener la ruta del wallet desde classpath
+            URL walletUrl = OracleWalletConfig.class.getClassLoader().getResource("wallet_extracted");
+            if (walletUrl != null) {
+                String walletPath = walletUrl.getPath();
+                
+                // Configurar las propiedades del sistema para Oracle
+                System.setProperty("oracle.net.tns_admin", walletPath);
+                System.setProperty("oracle.net.wallet_location", walletPath);
+                System.setProperty("TNS_ADMIN", walletPath);
+                
+                System.out.println("🔧 Oracle Wallet configurado en: " + walletPath);
+                System.out.println("📁 TNS_ADMIN configurado: " + System.getProperty("TNS_ADMIN"));
+                
+                // Verificar que los archivos existan
+                ClassPathResource tnsnames = new ClassPathResource("wallet_extracted/tnsnames.ora");
+                ClassPathResource cwallet = new ClassPathResource("wallet_extracted/cwallet.sso");
+                
+                System.out.println("📋 tnsnames.ora existe: " + tnsnames.exists());
+                System.out.println("🔐 cwallet.sso existe: " + cwallet.exists());
+                
+            } else {
+                System.err.println("❌ No se pudo encontrar el directorio wallet_extracted en classpath");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error configurando Oracle Wallet: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+*/

@@ -4,86 +4,119 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.fullstack.usuario.model.Usuario;
+
 import com.fullstack.usuario.model.dto.UsuarioDto;
 import com.fullstack.usuario.service.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.RequestBody;
-
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@RequestMapping("/api")
+@Tag(name = "Usuario Controller", description = "API para gestión de usuarios del sistema de productos del campo")
+@CrossOrigin(origins = "*")
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+    name = "app.database.enabled", 
+    havingValue = "true", 
+    matchIfMissing = true
+)
 public class UsuarioController {
 
     @Autowired
-    private UsuarioService usuarioService1;
+    private UsuarioService usuarioService;
 
-    @Operation (summary = "Mostrar todos los usuarios")
+    @Operation(summary = "Obtener todos los usuarios")
     @GetMapping("/usuarios")
-    public ResponseEntity<List<Usuario>> mostrarUsuarios(){
-        List<Usuario> usuarios = usuarioService1.getAllUsuarios();
+    public ResponseEntity<List<Usuario>> obtenerTodosLosUsuarios() {
+        List<Usuario> usuarios = usuarioService.getAllUsuarios();
         if (usuarios == null || usuarios.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(usuarios);
     }
 
-    @Operation (summary = "Mostrar un usuario por rut")
-    @GetMapping("/usuarios/{rut}")
-    public ResponseEntity<Usuario> obtenerUsuario(@PathVariable String rut){
-        if (usuarioService1.obtenerUsuario(rut) != null) {
-            return ResponseEntity.ok(usuarioService1.obtenerUsuario(rut));
+    @Operation(summary = "Obtener un usuario por ID")
+    @GetMapping("/usuarios/{id}")
+    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable String id) {
+        Usuario usuario = usuarioService.obtenerUsuario(id);
+        if (usuario != null) {
+            return ResponseEntity.ok(usuario);
         }
         return ResponseEntity.notFound().build();
     }
 
-    @Operation (summary = "Crear un usuario")
+    @Operation(summary = "Obtener un usuario por email")
+    @GetMapping("/usuarios/email/{email}")
+    public ResponseEntity<Usuario> obtenerUsuarioPorEmail(@PathVariable String email) {
+        Usuario usuario = usuarioService.obtenerUsuarioPorEmail(email);
+        if (usuario != null) {
+            return ResponseEntity.ok(usuario);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @Operation(summary = "Crear un nuevo usuario")
     @PostMapping("/usuarios")
-    public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario){
-        System.out.println("Usuario: " + usuario);
-        String resultado = usuarioService1.crearUsuario(usuario);
-        if (resultado != null) {
+    public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario) {
+        String resultado = usuarioService.crearUsuario(usuario);
+        if (resultado.contains("correctamente")) {
             return ResponseEntity.status(201).body(resultado);
         }
-        return ResponseEntity.badRequest().body("El usuario ya existe o los datos son inválidos.");
+        return ResponseEntity.badRequest().body(resultado);
     }
 
-    @Operation (summary = "Eliminar un usuario por rut")
-    @DeleteMapping("/usuarios/{rut}")
-    public ResponseEntity<String> borrarUsuario(@PathVariable String rut){
-        String resultado = usuarioService1.borrarUsuario(rut);
-            if (resultado == null) {
-        return ResponseEntity.notFound().build();
+    @Operation(summary = "Eliminar un usuario por ID")
+    @DeleteMapping("/usuarios/{id}")
+    public ResponseEntity<String> eliminarUsuario(@PathVariable String id) {
+        String resultado = usuarioService.borrarUsuario(id);
+        if (resultado.contains("correctamente")) {
+            return ResponseEntity.ok(resultado);
+        }
+        return ResponseEntity.badRequest().body(resultado);
     }
-    return ResponseEntity.ok(resultado);
-}
 
-    @Operation (summary = "Modificar un usuario")
+    @Operation(summary = "Modificar un usuario existente")
     @PutMapping("/usuarios")
-    public ResponseEntity<String> modificarUsuario(@RequestBody Usuario usuario){
-        if(usuarioService1.modificarUsuario(usuario) != null){
-            return ResponseEntity.ok(usuarioService1.modificarUsuario(usuario));
+    public ResponseEntity<String> modificarUsuario(@RequestBody Usuario usuario) {
+        String resultado = usuarioService.modificarUsuario(usuario);
+        if (resultado.contains("correctamente")) {
+            return ResponseEntity.ok(resultado);
         }
-        return ResponseEntity.badRequest().body("No se pudo modificar el usuario (no existe o datos inválidos).");
+        return ResponseEntity.badRequest().body(resultado);
     }
 
-    @Operation (summary = "Mostrar un usuario DTO por rut")
-    @GetMapping("/obtenerUsuario/{rut}")
-    public ResponseEntity<UsuarioDto> obtenerUsuarioDto(@PathVariable String rut){
-        if (usuarioService1.obtenerUsuarioDto(rut) != null){
-            return ResponseEntity.ok(usuarioService1.obtenerUsuarioDto(rut));
+    @Operation(summary = "Obtener DTO de usuario por ID")
+    @GetMapping("/usuarios/{id}/dto")
+    public ResponseEntity<UsuarioDto> obtenerUsuarioDto(@PathVariable String id) {
+        UsuarioDto usuarioDto = usuarioService.obtenerUsuarioDto(id);
+        if (usuarioDto != null) {
+            return ResponseEntity.ok(usuarioDto);
         }
         return ResponseEntity.notFound().build();
     }
-    
 
+    @Operation(summary = "Buscar usuarios por nombre")
+    @GetMapping("/usuarios/buscar/{nombre}")
+    public ResponseEntity<List<Usuario>> buscarUsuariosPorNombre(@PathVariable String nombre) {
+        List<Usuario> usuarios = usuarioService.buscarUsuariosPorNombre(nombre);
+        if (usuarios == null || usuarios.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(usuarios);
+    }
+
+    @Operation(summary = "Obtener usuarios por tipo")
+    @GetMapping("/usuarios/tipo/{idTipoUsuario}")
+    public ResponseEntity<List<Usuario>> obtenerUsuariosPorTipo(@PathVariable Integer idTipoUsuario) {
+        List<Usuario> usuarios = usuarioService.obtenerUsuariosPorTipo(idTipoUsuario);
+        if (usuarios == null || usuarios.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(usuarios);
+    }
 }
 
 

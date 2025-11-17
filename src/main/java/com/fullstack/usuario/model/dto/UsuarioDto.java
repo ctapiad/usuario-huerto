@@ -1,5 +1,7 @@
 package com.fullstack.usuario.model.dto;
 
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsuarioDto {
-    private String rut;
+    private String id;
     private String nombre;
-    private String apellido_paterno;
-    private String correo;
-    private String rol;
-    private int telefono;
-    
-   
-
+    private String email;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date fechaRegistro;
+    private String direccion;
+    private Integer telefono;
+    private Integer idComuna;
+    private Integer idTipoUsuario;
 }

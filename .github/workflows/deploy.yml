@@ -1,0 +1,55 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+
+    - name: Deploy to AWS EC2
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        AWS_HOST: ${{ secrets.AWS_HOST }}
+        AWS_USER: ${{ secrets.AWS_USER }}
+      run: |
+        echo "$SSH_PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+
+        # Copiar JAR al servidor
+        scp -i private_key.pem -o StrictHostKeyChecking=no \
+          target/*.jar $AWS_USER@$AWS_HOST:/home/$AWS_USER/usuario-service.jar
+
+        # Ejecutar comandos en el servidor
+        ssh -i private_key.pem -o StrictHostKeyChecking=no $AWS_USER@$AWS_HOST << 'EOF'
+          # Detener el servicio si está corriendo
+          pkill -f usuario-service.jar || true
+          
+          # Esperar a que el proceso termine
+          sleep 5
+          
+          # Iniciar el servicio en background con nohup
+          nohup java -jar /home/ubuntu/usuario-service.jar \
+            --spring.data.mongodb.uri="${{ secrets.MONGODB_URI }}" \
+            > /home/ubuntu/app.log 2>&1 &
+          
+          echo "Aplicación desplegada exitosamente"
+        EOF
+
+        # Limpiar archivo de clave privada
+        rm -f private_key.pem

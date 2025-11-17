@@ -1,0 +1,128 @@
+-- Script de configuración de base de datos Oracle Cloud para usuario HUERTO
+-- Sistema de usuarios para productos del campo
+-- Ejecutar como usuario HUERTO en Oracle Cloud
+
+-- Verificar conexión
+SELECT USER FROM DUAL;
+
+-- Crear secuencia para ID de usuario
+CREATE SEQUENCE seq_usuario
+START WITH 1
+INCREMENT BY 1
+NOCACHE
+NOCYCLE;
+
+-- Crear tabla de tipos de usuario
+CREATE TABLE tipo_usuario (
+    id_tipo_usuario NUMBER NOT NULL,
+    nombre VARCHAR2(50) NOT NULL,
+    descripcion VARCHAR2(200),
+    activo CHAR(1) DEFAULT 'S',
+    fecha_creacion DATE DEFAULT SYSDATE,
+    CONSTRAINT tipo_usuario_pk PRIMARY KEY (id_tipo_usuario),
+    CONSTRAINT tipo_usuario_activo_ck CHECK (activo IN ('S', 'N'))
+);
+
+-- Crear tabla de comunas chilenas
+CREATE TABLE comuna (
+    id_comuna NUMBER(3) NOT NULL,
+    nombre VARCHAR2(100) NOT NULL,
+    region VARCHAR2(100) NOT NULL,
+    codigo_postal VARCHAR2(10),
+    activo CHAR(1) DEFAULT 'S',
+    CONSTRAINT comuna_pk PRIMARY KEY (id_comuna),
+    CONSTRAINT comuna_activo_ck CHECK (activo IN ('S', 'N'))
+);
+
+-- Crear tabla principal de usuarios
+CREATE TABLE usuario (
+    id_usuario      NUMBER NOT NULL,
+    nombre          VARCHAR2(100) NOT NULL,
+    email           VARCHAR2(100) NOT NULL,
+    password        VARCHAR2(100) NOT NULL,
+    fecha_registro  DATE DEFAULT SYSDATE NOT NULL,
+    direccion       VARCHAR2(200),
+    telefono        NUMBER(9),
+    id_comuna       NUMBER(3) NOT NULL,
+    id_tipo_usuario NUMBER NOT NULL,
+    activo          CHAR(1) DEFAULT 'S',
+    fecha_modificacion DATE DEFAULT SYSDATE,
+    CONSTRAINT usuario_pk PRIMARY KEY (id_usuario),
+    CONSTRAINT usuario_email_uk UNIQUE (email),
+    CONSTRAINT usuario_comuna_fk FOREIGN KEY (id_comuna) REFERENCES comuna(id_comuna),
+    CONSTRAINT usuario_tipo_fk FOREIGN KEY (id_tipo_usuario) REFERENCES tipo_usuario(id_tipo_usuario),
+    CONSTRAINT usuario_activo_ck CHECK (activo IN ('S', 'N'))
+);
+
+-- Trigger para auto-incrementar ID de usuario y actualizar fecha modificación
+CREATE OR REPLACE TRIGGER trg_usuario_id
+BEFORE INSERT ON usuario
+FOR EACH ROW
+BEGIN
+    IF :NEW.id_usuario IS NULL THEN
+        :NEW.id_usuario := seq_usuario.NEXTVAL;
+    END IF;
+    :NEW.fecha_registro := SYSDATE;
+    :NEW.fecha_modificacion := SYSDATE;
+END;
+/
+
+-- Trigger para actualizar fecha de modificación en UPDATE
+CREATE OR REPLACE TRIGGER trg_usuario_update
+BEFORE UPDATE ON usuario
+FOR EACH ROW
+BEGIN
+    :NEW.fecha_modificacion := SYSDATE;
+END;
+/
+
+-- Insertar tipos de usuario para productos del campo
+INSERT INTO tipo_usuario (id_tipo_usuario, nombre, descripcion) VALUES (1, 'Administrador', 'Usuario administrador del sistema');
+INSERT INTO tipo_usuario (id_tipo_usuario, nombre, descripcion) VALUES (2, 'Productor', 'Productor agrícola de productos del campo');
+INSERT INTO tipo_usuario (id_tipo_usuario, nombre, descripcion) VALUES (3, 'Comprador', 'Cliente comprador de productos agrícolas');
+INSERT INTO tipo_usuario (id_tipo_usuario, nombre, descripcion) VALUES (4, 'Distribuidor', 'Distribuidor de productos del campo');
+INSERT INTO tipo_usuario (id_tipo_usuario, nombre, descripcion) VALUES (5, 'Transportista', 'Encargado del transporte de productos');
+
+-- Insertar comunas principales de Chile
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (1, 'Santiago', 'Región Metropolitana', '8320000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (2, 'Valparaíso', 'Región de Valparaíso', '2340000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (3, 'Concepción', 'Región del Biobío', '4030000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (4, 'La Serena', 'Región de Coquimbo', '1700000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (5, 'Temuco', 'Región de La Araucanía', '4780000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (6, 'Rancagua', 'Región del Libertador Bernardo O''Higgins', '2820000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (7, 'Talca', 'Región del Maule', '3460000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (8, 'Antofagasta', 'Región de Antofagasta', '1240000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (9, 'Iquique', 'Región de Tarapacá', '1100000');
+INSERT INTO comuna (id_comuna, nombre, region, codigo_postal) VALUES (10, 'Puerto Montt', 'Región de Los Lagos', '5480000');
+
+-- Insertar usuario administrador por defecto
+INSERT INTO usuario (nombre, email, password, direccion, telefono, id_comuna, id_tipo_usuario) 
+VALUES ('Administrador Sistema', 'admin@huerto.cl', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.', 'Oficina Central Santiago', 223456789, 1, 1);
+
+-- Insertar algunos usuarios de prueba
+INSERT INTO usuario (nombre, email, password, direccion, telefono, id_comuna, id_tipo_usuario) 
+VALUES ('Juan Pérez', 'juan.perez@huerto.cl', 'productor123', 'Fundo Los Almendros, Rancagua', 987654321, 6, 2);
+
+INSERT INTO usuario (nombre, email, password, direccion, telefono, id_comuna, id_tipo_usuario) 
+VALUES ('María González', 'maria.gonzalez@huerto.cl', 'comprador123', 'Mercado Central, Santiago', 956789123, 1, 3);
+
+INSERT INTO usuario (nombre, email, password, direccion, telefono, id_comuna, id_tipo_usuario) 
+VALUES ('Carlos Rodríguez', 'carlos.rodriguez@huerto.cl', 'distribuidor123', 'Av. Portales 1234, Valparaíso', 945123789, 2, 4);
+
+-- Crear índices para mejorar performance
+CREATE INDEX idx_usuario_email ON usuario(email);
+CREATE INDEX idx_usuario_tipo ON usuario(id_tipo_usuario);
+CREATE INDEX idx_usuario_comuna ON usuario(id_comuna);
+CREATE INDEX idx_usuario_activo ON usuario(activo);
+
+-- Comentarios en las tablas
+COMMENT ON TABLE usuario IS 'Tabla principal de usuarios del sistema de productos del campo';
+COMMENT ON TABLE tipo_usuario IS 'Catálogo de tipos de usuario del sistema';
+COMMENT ON TABLE comuna IS 'Catálogo de comunas chilenas';
+
+COMMIT;
+
+-- Verificar que todo se creó correctamente
+SELECT 'Usuarios creados: ' || COUNT(*) as resultado FROM usuario;
+SELECT 'Tipos de usuario: ' || COUNT(*) as resultado FROM tipo_usuario;
+SELECT 'Comunas disponibles: ' || COUNT(*) as resultado FROM comuna;

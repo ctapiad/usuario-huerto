@@ -1,7 +1,9 @@
 package com.fullstack.usuario.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,22 +13,18 @@ import com.fullstack.usuario.model.dto.UsuarioDto;
 import com.fullstack.usuario.model.entity.UsuarioEntity;
 import com.fullstack.usuario.repository.UsuarioRepository;
 
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public UsuarioService(){
-
-
+    public UsuarioService() {
     }
 
     public List<Usuario> getAllUsuarios() {
         try {
-            List<UsuarioEntity> listaUsuario = (List<UsuarioEntity>) usuarioRepository.findAll();
+            List<UsuarioEntity> listaUsuario = usuarioRepository.findAll();
 
             if (listaUsuario.isEmpty()) {
                 System.out.println("No hay usuarios registrados en la base de datos");
@@ -34,150 +32,194 @@ public class UsuarioService {
             } 
 
             List<Usuario> usuarios = new ArrayList<>();
-            for (UsuarioEntity usuario : listaUsuario){
-                Usuario nuevoUsuario = new Usuario();
-                nuevoUsuario.setRut(usuario.getRut());
-                nuevoUsuario.setNombre(usuario.getNombre());
-                nuevoUsuario.setApellido_paterno(usuario.getApellido_paterno());
-                nuevoUsuario.setCorreo(usuario.getCorreo());
-                nuevoUsuario.setDireccion(usuario.getDireccion());
-                nuevoUsuario.setContrasena(usuario.getContrasena());
-                nuevoUsuario.setRol(usuario.getRol());
-                nuevoUsuario.setTelefono(usuario.getTelefono());
-                nuevoUsuario.setFecha_nacimiento(usuario.getFecha_nacimiento());
-                usuarios.add(nuevoUsuario);
+            for (UsuarioEntity usuarioEntity : listaUsuario) {
+                usuarios.add(convertirEntityAUsuario(usuarioEntity));
             }
             return usuarios;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error de validación: " + e.getMessage());
-            return new ArrayList<>();
         } catch (Exception e) {
-            System.out.println("Error al obtener los soportes: " + e.getMessage());
+            System.out.println("Error al obtener los usuarios: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
-
-    public Usuario obtenerUsuario(String rut) {
+    public Usuario obtenerUsuario(String id) {
         try {
-            UsuarioEntity usuarioEntity = usuarioRepository.findByRut(rut);
-            if (usuarioEntity == null) {
+            Optional<UsuarioEntity> usuarioEntity = usuarioRepository.findById(id);
+            
+            if (usuarioEntity.isPresent()) {
+                return convertirEntityAUsuario(usuarioEntity.get());
+            } else {
                 throw new IllegalArgumentException("El usuario no existe");
             }
-            Usuario Usuario = new Usuario();
-            Usuario.setRut(usuarioEntity.getRut());
-            Usuario.setNombre(usuarioEntity.getNombre());
-            Usuario.setApellido_paterno(usuarioEntity.getApellido_paterno());
-            Usuario.setCorreo(usuarioEntity.getCorreo());
-            Usuario.setDireccion(usuarioEntity.getDireccion());
-            Usuario.setContrasena(usuarioEntity.getContrasena());
-            Usuario.setRol(usuarioEntity.getRol());
-            Usuario.setTelefono(usuarioEntity.getTelefono());
-            Usuario.setFecha_nacimiento(usuarioEntity.getFecha_nacimiento());
-            return Usuario;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error de validación: " + e.getMessage());
-            return null;
-        } catch (Exception e) {
-            System.out.println("Error al obtener el soporte: " + e.getMessage());
-            return null;
-        }
-    }
-
-    public String crearUsuario(Usuario usuario){
-        try {
-            Boolean estado = usuarioRepository.existsByRut(usuario.getRut());
-            if (estado != true){
-                UsuarioEntity usuarioNuevo = new UsuarioEntity();
-                usuarioNuevo.setRut(usuario.getRut());
-                usuarioNuevo.setNombre(usuario.getNombre());
-                usuarioNuevo.setApellido_paterno(usuario.getApellido_paterno());
-                usuarioNuevo.setCorreo(usuario.getCorreo());
-                usuarioNuevo.setDireccion(usuario.getDireccion());
-                usuarioNuevo.setContrasena(usuario.getContrasena());
-                usuarioNuevo.setRol(usuario.getRol());
-                usuarioNuevo.setTelefono(usuario.getTelefono());
-                usuarioNuevo.setFecha_nacimiento(usuario.getFecha_nacimiento());
-                usuarioRepository.save(usuarioNuevo);
-                return "Usuario creado correctamente";
-            }
-            else {
-                return null;
-            }
-        } catch (Exception e) {
-            System.out.println("Error al crear el usuario: " + e.getMessage());
-            return null;
-        }
-
-    }
-
-
-    @Transactional
-    public String borrarUsuario(String rut){
-
-        try {
-            Boolean estado = usuarioRepository.existsByRut(rut);
-            if (estado == true){
-                usuarioRepository.deleteByRut(rut);
-                return "rut " + rut + " eliminado correctamente";
-            }
-            else {
-                System.out.println("El usuario con rut " + rut + " no existe");
-                return null;
-            }
-        } catch (Exception e) {
-            System.out.println("Error al eliminar el usuario: " + e.getMessage());
-            return null;
-        }
-    }
-
-
-    public String modificarUsuario (Usuario usuario){
-        try {
-            if (usuarioRepository.existsByRut(usuario.getRut())){
-                UsuarioEntity usuarioExistente = usuarioRepository.findByRut(usuario.getRut());
-                if (usuarioExistente != null) {
-                usuarioExistente.setNombre(usuario.getNombre());
-                usuarioExistente.setApellido_paterno(usuario.getApellido_paterno());
-                usuarioExistente.setCorreo(usuario.getCorreo());
-                usuarioExistente.setDireccion(usuario.getDireccion());
-                usuarioExistente.setContrasena(usuario.getContrasena());
-                usuarioExistente.setRol(usuario.getRol());
-                usuarioExistente.setTelefono(usuario.getTelefono());
-                usuarioExistente.setFecha_nacimiento(usuario.getFecha_nacimiento());
-                usuarioRepository.save(usuarioExistente);
-                System.out.println("Usuario con rut " + usuario.getRut() + " modificado correctamente");
-                return "";
-            } else {
-                System.out.println("El usuario con rut " + usuario.getRut() + " no existe");
-                return null;
-            }
-        } else {
-            System.out.println("Error al modificar el usuario: ");
-            return null;
-        }
-    } catch (Exception e) {
-            System.out.println("Error al modificar el usuario: " + e.getMessage());
-            return null;
-        }
-    }
-
-
-    public UsuarioDto obtenerUsuarioDto(String rut){
-        try {
-            UsuarioEntity usuario = usuarioRepository.findByRut(rut);
-            UsuarioDto nuevoUsuario = new UsuarioDto(
-                usuario.getRut(),
-                usuario.getNombre(),
-                usuario.getApellido_paterno(),
-                usuario.getCorreo(),
-                usuario.getRol(),
-                usuario.getTelefono()
-            );
-            return nuevoUsuario;
         } catch (Exception e) {
             System.out.println("Error al obtener el usuario: " + e.getMessage());
             return null;
         }
+    }
+
+    public Usuario obtenerUsuarioPorEmail(String email) {
+        try {
+            Optional<UsuarioEntity> usuarioEntity = usuarioRepository.findByEmail(email);
+            if (usuarioEntity.isPresent()) {
+                return convertirEntityAUsuario(usuarioEntity.get());
+            } else {
+                throw new IllegalArgumentException("El usuario no existe");
+            }
+        } catch (Exception e) {
+            System.out.println("Error al obtener el usuario por email: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public String crearUsuario(Usuario usuario) {
+        try {
+            // Verificar si ya existe un usuario con ese email
+            if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+                return "Ya existe un usuario con ese email";
+            }
+
+            UsuarioEntity usuarioNuevo = new UsuarioEntity();
+            // MongoDB genera automáticamente el ID, no lo establecemos
+            usuarioNuevo.setNombre(usuario.getNombre());
+            usuarioNuevo.setEmail(usuario.getEmail());
+            usuarioNuevo.setPassword(usuario.getPassword());
+            usuarioNuevo.setFechaRegistro(usuario.getFechaRegistro() != null ? usuario.getFechaRegistro() : new Date());
+            usuarioNuevo.setDireccion(usuario.getDireccion());
+            usuarioNuevo.setTelefono(usuario.getTelefono());
+            usuarioNuevo.setIdComuna(usuario.getIdComuna());
+            usuarioNuevo.setIdTipoUsuario(usuario.getIdTipoUsuario());
+
+            usuarioRepository.save(usuarioNuevo);
+            return "Usuario creado correctamente";
+        } catch (Exception e) {
+            System.out.println("Error al crear el usuario: " + e.getMessage());
+            return "Error al crear el usuario: " + e.getMessage();
+        }
+    }
+
+    public String borrarUsuario(String id) {
+        try {
+            if (usuarioRepository.existsById(id)) {
+                usuarioRepository.deleteById(id);
+                return "Usuario con ID " + id + " eliminado correctamente";
+            } else {
+                return "El usuario con ID " + id + " no existe";
+            }
+        } catch (Exception e) {
+            System.out.println("Error al eliminar el usuario: " + e.getMessage());
+            return "Error al eliminar el usuario: " + e.getMessage();
+        }
+    }
+
+    public String modificarUsuario(Usuario usuario) {
+        try {
+            // Buscar el usuario por su ObjectId
+            Optional<UsuarioEntity> usuarioOpt = usuarioRepository.findById(usuario.getId());
+                
+            if (usuarioOpt.isPresent()) {
+                UsuarioEntity usuarioExistente = usuarioOpt.get();
+                
+                // Solo actualizar los campos que no son null
+                if (usuario.getNombre() != null) {
+                    usuarioExistente.setNombre(usuario.getNombre());
+                }
+                if (usuario.getEmail() != null) {
+                    usuarioExistente.setEmail(usuario.getEmail());
+                }
+                if (usuario.getPassword() != null) {
+                    usuarioExistente.setPassword(usuario.getPassword());
+                }
+                if (usuario.getDireccion() != null) {
+                    usuarioExistente.setDireccion(usuario.getDireccion());
+                }
+                if (usuario.getTelefono() != null) {
+                    usuarioExistente.setTelefono(usuario.getTelefono());
+                }
+                if (usuario.getIdComuna() != null) {
+                    usuarioExistente.setIdComuna(usuario.getIdComuna());
+                }
+                if (usuario.getIdTipoUsuario() != null) {
+                    usuarioExistente.setIdTipoUsuario(usuario.getIdTipoUsuario());
+                }
+                    
+                usuarioRepository.save(usuarioExistente);
+                return "Usuario con ID " + usuario.getId() + " modificado correctamente";
+            } else {
+                return "El usuario con ID " + usuario.getId() + " no existe";
+            }
+        } catch (Exception e) {
+            System.out.println("Error al modificar el usuario: " + e.getMessage());
+            return "Error al modificar el usuario: " + e.getMessage();
+        }
+    }
+
+    public UsuarioDto obtenerUsuarioDto(String id) {
+        try {
+            Optional<UsuarioEntity> usuarioOpt = usuarioRepository.findById(id);
+                
+            if (usuarioOpt.isPresent()) {
+                return convertirEntityAUsuarioDto(usuarioOpt.get());
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println("Error al obtener el usuario DTO: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public List<Usuario> buscarUsuariosPorNombre(String nombre) {
+        try {
+            List<UsuarioEntity> listaUsuarios = usuarioRepository.findByNombreContaining(nombre);
+            List<Usuario> usuarios = new ArrayList<>();
+            for (UsuarioEntity usuarioEntity : listaUsuarios) {
+                usuarios.add(convertirEntityAUsuario(usuarioEntity));
+            }
+            return usuarios;
+        } catch (Exception e) {
+            System.out.println("Error al buscar usuarios por nombre: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Usuario> obtenerUsuariosPorTipo(Integer idTipoUsuario) {
+        try {
+            List<UsuarioEntity> listaUsuarios = usuarioRepository.findByIdTipoUsuario(idTipoUsuario);
+            List<Usuario> usuarios = new ArrayList<>();
+            for (UsuarioEntity usuarioEntity : listaUsuarios) {
+                usuarios.add(convertirEntityAUsuario(usuarioEntity));
+            }
+            return usuarios;
+        } catch (Exception e) {
+            System.out.println("Error al obtener usuarios por tipo: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    // Métodos de conversión
+    private Usuario convertirEntityAUsuario(UsuarioEntity entity) {
+        Usuario usuario = new Usuario();
+        usuario.setId(entity.getId());
+        usuario.setNombre(entity.getNombre());
+        usuario.setEmail(entity.getEmail());
+        usuario.setPassword(entity.getPassword());
+        usuario.setFechaRegistro(entity.getFechaRegistro());
+        usuario.setDireccion(entity.getDireccion());
+        usuario.setTelefono(entity.getTelefono());
+        usuario.setIdComuna(entity.getIdComuna());
+        usuario.setIdTipoUsuario(entity.getIdTipoUsuario());
+        return usuario;
+    }
+
+    private UsuarioDto convertirEntityAUsuarioDto(UsuarioEntity entity) {
+        UsuarioDto dto = new UsuarioDto();
+        dto.setId(entity.getId());
+        dto.setNombre(entity.getNombre());
+        dto.setEmail(entity.getEmail());
+        dto.setFechaRegistro(entity.getFechaRegistro());
+        dto.setDireccion(entity.getDireccion());
+        dto.setTelefono(entity.getTelefono());
+        dto.setIdComuna(entity.getIdComuna());
+        dto.setIdTipoUsuario(entity.getIdTipoUsuario());
+        return dto;
     }
 }

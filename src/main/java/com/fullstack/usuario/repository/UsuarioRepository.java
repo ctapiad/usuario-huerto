@@ -1,17 +1,23 @@
 package com.fullstack.usuario.repository;
 
+import java.util.List;
+import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.fullstack.usuario.model.entity.UsuarioEntity;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<UsuarioEntity, String> {
+public interface UsuarioRepository extends MongoRepository<UsuarioEntity, String> {
 
-    UsuarioEntity findByRut(String rut);
-    void deleteByRut(String rut);
-    boolean existsByRut(String rut);
-
+    Optional<UsuarioEntity> findByEmail(String email);
+    boolean existsByEmail(String email);
+    List<UsuarioEntity> findByIdTipoUsuario(Integer idTipoUsuario);
+    List<UsuarioEntity> findByIdComuna(Integer idComuna);
+    
+    @Query("{ 'nombre': { $regex: ?0, $options: 'i' } }")
+    List<UsuarioEntity> findByNombreContaining(String nombre);
 
 }

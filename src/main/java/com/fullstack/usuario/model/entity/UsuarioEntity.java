@@ -2,30 +2,44 @@ package com.fullstack.usuario.model.entity;
 
 import java.util.Date;
 
-import jakarta.persistence.Entity;
-
-import jakarta.persistence.Id;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import lombok.Data;
 
-@Entity
+@Document(collection = "usuario")
 @Data
 public class UsuarioEntity {
 
     @Id
-    private String rut;
+    private String id;
 
+    @Field("nombre")
     private String nombre;
-    private String apellido_paterno;
-    private String correo;
+
+    @Field("email")
+    private String email;
+
+    @Field("password")
+    private String password;
+
+    @Field("fecha_registro")
+    private Date fechaRegistro;
+
+    @Field("direccion")
     private String direccion;
-    private String contrasena;
-    private String rol;
-    private int telefono;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fecha_nacimiento;
+    @Field("telefono")
+    private Integer telefono;
 
+    @Field("id_comuna")
+    private Integer idComuna;
 
+    @Field("id_tipo_usuario")
+    private Integer idTipoUsuario;
+
+    // Constructor por defecto
+    public UsuarioEntity() {
+        this.fechaRegistro = new Date(); // Asigna fecha actual por defecto
+    }
 }
