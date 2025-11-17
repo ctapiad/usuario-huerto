@@ -40,16 +40,14 @@ jobs:
 
         # Ejecutar comandos en el servidor
         ssh -i private_key.pem -o StrictHostKeyChecking=no $AWS_USER@$AWS_HOST << 'EOF'
-          # Detener el servicio si está corriendo
-          pkill -f usuario-service.jar || true
+          # Reiniciar el servicio systemd
+          sudo systemctl restart usuario-service
           
-          # Esperar a que el proceso termine
+          # Esperar a que el servicio inicie
           sleep 5
           
-          # Iniciar el servicio en background con nohup
-          nohup java -jar /home/ubuntu/usuario-service.jar \
-            --spring.data.mongodb.uri="${{ secrets.MONGODB_URI }}" \
-            > /home/ubuntu/app.log 2>&1 &
+          # Verificar estado del servicio
+          sudo systemctl status usuario-service --no-pager
           
           echo "Aplicación desplegada exitosamente"
         EOF
