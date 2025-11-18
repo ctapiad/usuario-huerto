@@ -119,6 +119,14 @@ public class UsuarioService {
             if (usuarioOpt.isPresent()) {
                 UsuarioEntity usuarioExistente = usuarioOpt.get();
                 
+                // Validar email duplicado si se está actualizando
+                if (usuario.getEmail() != null && !usuario.getEmail().equals(usuarioExistente.getEmail())) {
+                    Optional<UsuarioEntity> usuarioConEmail = usuarioRepository.findByEmail(usuario.getEmail());
+                    if (usuarioConEmail.isPresent() && !usuarioConEmail.get().getId().equals(usuario.getId())) {
+                        return "Ya existe otro usuario con ese email";
+                    }
+                }
+                
                 // Solo actualizar los campos que no son null
                 if (usuario.getNombre() != null) {
                     usuarioExistente.setNombre(usuario.getNombre());
