@@ -94,11 +94,16 @@ git clone https://github.com/ctapiad/usuario-huerto.git
 cd usuario-huerto
 ```
 
-2. **Configurar MongoDB URI:**
-Editar `src/main/resources/application.properties`:
-```properties
-spring.data.mongodb.uri=mongodb+srv://usuario:password@cluster.mongodb.net/Huerto
-server.port=8081
+2. **Configurar variables de entorno:**
+Crear archivo `.env` basado en `.env.example`:
+```bash
+cp .env.example .env
+# Editar .env con tus credenciales reales
+```
+
+O exportar la variable:
+```bash
+export MONGODB_URI="mongodb+srv://usuario:password@cluster.mongodb.net/Huerto"
 ```
 
 3. **Compilar y ejecutar:**
@@ -179,6 +184,17 @@ El proyecto usa **GitHub Actions** para despliegue automático:
 - ✅ **Auto-reinicio**: Systemd reinicia el servicio si falla
 - ✅ **Logs Centralizados**: `/home/ubuntu/app.log`
 - ✅ **CORS Habilitado**: API accesible desde cualquier origen
+
+## 🔐 Seguridad
+
+### Variables de Entorno
+**IMPORTANTE**: Este proyecto usa variables de entorno para credenciales sensibles.
+
+- **Local**: Crear archivo `.env` desde `.env.example`
+- **EC2**: Variables exportadas en el servicio systemd
+- **GitHub Actions**: Configuradas en Secrets del repositorio
+
+**NUNCA** commitear archivos con credenciales reales (`.env`, `application-prod.properties`, etc.)
 
 ## 🔧 Comandos Útiles
 

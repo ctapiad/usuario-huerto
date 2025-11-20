@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * Configuración de MongoDB para el proyecto.
  * 
  * La conexión se configura mediante application.properties:
- * spring.data.mongodb.uri=mongodb+srv://ctapiad_db_user:MhRBXg6OTYK9AqQv@huerto.bi4rvwk.mongodb.net/Huerto
+ * spring.data.mongodb.uri=${MONGODB_URI}
  * 
  * Base de datos: Huerto
  * Colección principal: usuarios
