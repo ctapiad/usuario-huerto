@@ -3,8 +3,9 @@
 Este proyecto es un microservicio de gestión de usuarios para el sistema HuertoHogar, utilizando MongoDB Atlas.
 
 ## 🚀 API en Producción
-- **URL Base**: http://54.211.27.253:8081/api/usuarios
-- **Swagger UI**: http://54.211.27.253:8081/swagger-ui.html
+- **URL Base**: http://34.193.190.24:8081/api/usuarios
+- **Swagger UI**: http://34.193.190.24:8081/swagger-ui.html
+- **IP Elástica**: 34.193.190.24 (permanente)
 
 ## Estructura de la Base de Datos
 
