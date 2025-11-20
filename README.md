@@ -6,6 +6,7 @@ Este proyecto es un microservicio de gestión de usuarios para el sistema Huerto
 - **URL Base**: http://34.193.190.24:8081/api/usuarios
 - **Swagger UI**: http://34.193.190.24:8081/swagger-ui.html
 - **IP Elástica**: 34.193.190.24 (permanente)
+- **Estado**: ✅ Activo con CI/CD automatizado
 
 ## Estructura de la Base de Datos
 
