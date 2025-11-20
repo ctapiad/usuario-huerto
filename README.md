@@ -1,129 +1,242 @@
-# Sistema de Gestión de Usuarios - HuertoHogar
+# Sistema de Gestión de Usuarios - HuertoHogar 🌱
 
-Este proyecto es un microservicio de gestión de usuarios para el sistema HuertoHogar, utilizando MongoDB Atlas.
+API REST para la gestión de usuarios del sistema HuertoHogar, desplegada en AWS EC2 con MongoDB Atlas.
 
 ## 🚀 API en Producción
+
 - **URL Base**: http://34.193.190.24:8081/api/usuarios
 - **Swagger UI**: http://34.193.190.24:8081/swagger-ui.html
 - **IP Elástica**: 34.193.190.24 (permanente)
 - **Estado**: ✅ Activo con CI/CD automatizado
 
-## Estructura de la Base de Datos
+## 🛠️ Stack Tecnológico
 
-La aplicación utiliza la siguiente tabla de usuarios en Oracle:
+- **Backend**: Java 17 + Spring Boot 3.4.5
+- **Base de Datos**: MongoDB Atlas (Cluster en AWS SA-EAST-1)
+- **Cloud**: AWS EC2 (Ubuntu 24.04, IP Elástica)
+- **CI/CD**: GitHub Actions
+- **Documentación**: Swagger/OpenAPI 3
+- **Build Tool**: Maven
 
-```sql
-CREATE TABLE usuario (
-    id_usuario      NUMBER NOT NULL,
-    nombre          VARCHAR2(100) NOT NULL,
-    email           VARCHAR2(100) NOT NULL,
-    password        VARCHAR2(100) NOT NULL,
-    fecha_registro  DATE NOT NULL,
-    direccion       VARCHAR2(200),
-    telefono        NUMBER(9),
-    id_comuna       NUMBER(3) NOT NULL,
-    id_tipo_usuario NUMBER NOT NULL
-);
-ALTER TABLE usuario ADD CONSTRAINT usuario_pk PRIMARY KEY ( id_usuario );
+## 📊 Estructura de la Base de Datos
+
+**Base de Datos**: `Huerto`  
+**Colección**: `usuario`
+
+```javascript
+{
+  _id: ObjectId,           // ID único generado por MongoDB
+  nombre: String,          // Nombre completo del usuario
+  email: String,           // Email único (validado)
+  password: String,        // Contraseña
+  fecha_registro: Date,    // Fecha de registro
+  direccion: String,       // Dirección
+  telefono: Number,        // Teléfono
+  id_comuna: Number,       // ID de la comuna
+  id_tipo_usuario: Number  // Tipo: 1=Admin, 2=Vendedor, 3=Cliente
+}
 ```
 
-## Tecnologías Utilizadas
+## 🔌 API Endpoints
 
-- **Java 17**
-- **Spring Boot 3.4.5**
-- **Spring Data JPA**
-- **Oracle Database**
-- **Maven**
-- **Swagger/OpenAPI 3**
-- **Lombok**
+### Gestión de Usuarios
 
-## Configuración
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/api/usuarios` | Listar todos los usuarios |
+| `GET` | `/api/usuarios/{id}` | Obtener usuario por ID |
+| `GET` | `/api/usuarios/email/{email}` | Buscar usuario por email |
+| `POST` | `/api/usuarios` | Crear nuevo usuario |
+| `PUT` | `/api/usuarios` | Actualizar usuario (campos parciales) |
+| `DELETE` | `/api/usuarios/{id}` | Eliminar usuario |
+| `GET` | `/api/usuarios/buscar/{nombre}` | Buscar por nombre (regex) |
+| `GET` | `/api/usuarios/tipo/{idTipoUsuario}` | Filtrar por tipo de usuario |
 
-### Variables de Entorno
+### Ejemplo de Uso
 
-Configura las siguientes variables en el archivo `.env`:
-
-```properties
-ORACLE_DB_HOST=localhost
-ORACLE_DB_PORT=1521
-ORACLE_DB_SID=XE
-ORACLE_DB_USERNAME=tu_usuario
-ORACLE_DB_PASSWORD=tu_password
-SERVER_PORT=8080
-```
-
-### Base de Datos Oracle
-
-1. Asegúrate de tener Oracle Database instalado y ejecutándose
-2. Crea la tabla de usuarios usando el script SQL proporcionado
-3. Configura las credenciales de conexión en el archivo `.env`
-
-## Instalación y Ejecución
-
-1. Clona el repositorio
-2. Configura las variables de entorno en `.env`
-3. Ejecuta la aplicación:
-
+**Crear Usuario:**
 ```bash
-mvn clean install
-mvn spring-boot:run
+curl -X POST http://34.193.190.24:8081/api/usuarios \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Juan Pérez",
+    "email": "juan@example.com",
+    "password": "Pass123!",
+    "direccion": "Calle Falsa 123",
+    "telefono": 912345678,
+    "idComuna": 15,
+    "idTipoUsuario": 3
+  }'
 ```
 
-## API Endpoints
-
-### Usuarios
-
-- `GET /api/usuarios` - Obtener todos los usuarios
-- `GET /api/usuarios/{id}` - Obtener usuario por ID
-- `GET /api/usuarios/email/{email}` - Obtener usuario por email
-- `POST /api/usuarios` - Crear nuevo usuario
-- `PUT /api/usuarios` - Modificar usuario existente
-- `DELETE /api/usuarios/{id}` - Eliminar usuario
-- `GET /api/usuarios/{id}/dto` - Obtener DTO de usuario
-- `GET /api/usuarios/buscar/{nombre}` - Buscar usuarios por nombre
-- `GET /api/usuarios/tipo/{idTipoUsuario}` - Obtener usuarios por tipo
-
-## Documentación API
-
-Una vez que la aplicación esté ejecutándose, puedes acceder a la documentación Swagger en:
-
-```
-http://localhost:8080/swagger-ui/index.html
+**Actualizar Email (con validación de duplicados):**
+```bash
+curl -X PUT http://34.193.190.24:8081/api/usuarios \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "691484cf402bef2b16612c8d",
+    "email": "nuevo@email.com"
+  }'
 ```
 
-## Estructura del Proyecto
+## 🚀 Instalación y Ejecución Local
 
-```
-src/
-├── main/
-│   ├── java/com/fullstack/usuario/
-│   │   ├── controller/          # Controladores REST
-│   │   ├── service/             # Lógica de negocio
-│   │   ├── repository/          # Acceso a datos
-│   │   ├── model/               # Modelos de dominio
-│   │   │   ├── entity/          # Entidades JPA
-│   │   │   └── dto/             # Objetos de transferencia de datos
-│   │   ├── config/              # Configuraciones
-│   │   └── UsuarioApplication.java
-│   └── resources/
-│       └── application.properties
-└── test/                        # Pruebas unitarias
+### Prerrequisitos
+- Java 17+
+- Maven 3.8+
+- Acceso a MongoDB Atlas (o instancia local)
+
+### Pasos
+
+1. **Clonar el repositorio:**
+```bash
+git clone https://github.com/ctapiad/usuario-huerto.git
+cd usuario-huerto
 ```
 
-## Notas de Migración
+2. **Configurar MongoDB URI:**
+Editar `src/main/resources/application.properties`:
+```properties
+spring.data.mongodb.uri=mongodb+srv://usuario:password@cluster.mongodb.net/Huerto
+server.port=8081
+```
 
-Este proyecto ha sido migrado desde MySQL a Oracle Database con los siguientes cambios principales:
+3. **Compilar y ejecutar:**
+```bash
+./mvnw clean package
+./mvnw spring-boot:run
+```
 
-- Reemplazo del driver MySQL por Oracle JDBC
-- Actualización de entidades JPA para mapear correctamente con la estructura Oracle
-- Adaptación de tipos de datos (VARCHAR2, NUMBER, DATE)
-- Configuración específica para Oracle Dialect
-- Nuevos endpoints adaptados a la estructura de ID numérico en lugar de RUT
+4. **Acceder a Swagger:**
+```
+http://localhost:8081/swagger-ui.html
+```
 
-## Contribución
+## 🏗️ Arquitectura del Proyecto
+
+```
+src/main/java/com/fullstack/usuario/
+├── UsuarioApplication.java          # Punto de entrada
+├── controller/
+│   └── UsuarioController.java       # Endpoints REST
+├── service/
+│   └── UsuarioService.java          # Lógica de negocio
+├── repository/
+│   └── UsuarioRepository.java       # Acceso a MongoDB
+├── model/
+│   ├── Usuario.java                 # DTO de transferencia
+│   ├── entity/
+│   │   └── UsuarioEntity.java       # Entidad MongoDB (@Document)
+│   └── dto/
+│       └── UsuarioDto.java          # DTO sin password
+└── config/
+    └── SwaggerConfig.java           # Configuración OpenAPI
+```
+
+## ☁️ Infraestructura AWS
+
+### EC2 Instance
+- **Tipo**: t3.micro
+- **OS**: Ubuntu 24.04 LTS
+- **IP Elástica**: 34.193.190.24
+- **Java**: OpenJDK 17
+- **Servicio**: systemd (`usuario-service`)
+
+### Security Group
+| Puerto | Protocolo | Origen | Descripción |
+|--------|-----------|--------|-------------|
+| 22 | TCP | 0.0.0.0/0 | SSH |
+| 8081 | TCP | 0.0.0.0/0 | API REST |
+
+### MongoDB Atlas
+- **Cluster**: huerto.bi4rvwk.mongodb.net
+- **Región**: AWS SA-EAST-1 (São Paulo)
+- **Tier**: M0 (Free)
+- **Replica Set**: 3 nodos
+
+## 🔄 CI/CD Pipeline
+
+El proyecto usa **GitHub Actions** para despliegue automático:
+
+1. **Push a `main`** → Trigger workflow
+2. **Build**: `./mvnw clean package`
+3. **Deploy**: SCP del JAR a EC2
+4. **Restart**: `systemctl restart usuario-service`
+
+**Workflow**: `.github/workflows/deploy.yml`
+
+### GitHub Secrets Requeridos
+- `AWS_HOST`: 34.193.190.24
+- `AWS_USER`: ubuntu
+- `SSH_PRIVATE_KEY`: Clave privada para SSH
+- `MONGODB_URI`: Conexión a MongoDB Atlas
+
+## ✨ Características Destacadas
+
+- ✅ **Validación de Email Único**: Previene duplicados al crear/actualizar
+- ✅ **Actualización Parcial**: PUT solo modifica campos no-null
+- ✅ **ObjectId Nativo**: Uso correcto de IDs de MongoDB
+- ✅ **Auto-reinicio**: Systemd reinicia el servicio si falla
+- ✅ **Logs Centralizados**: `/home/ubuntu/app.log`
+- ✅ **CORS Habilitado**: API accesible desde cualquier origen
+
+## 🔧 Comandos Útiles
+
+### En EC2 (SSH)
+```bash
+# Ver logs en tiempo real
+sudo journalctl -u usuario-service -f
+
+# Reiniciar servicio
+sudo systemctl restart usuario-service
+
+# Ver estado
+sudo systemctl status usuario-service
+```
+
+### Localmente
+```bash
+# Compilar sin tests
+./mvnw clean package -DskipTests
+
+# Ver dependencias
+./mvnw dependency:tree
+
+# Formatear código
+./mvnw spring-javaformat:apply
+```
+
+## 🐛 Troubleshooting
+
+**Problema**: API no responde desde fuera  
+**Solución**: Verificar Security Group tiene puerto 8081 abierto
+
+**Problema**: Error SSL con MongoDB  
+**Solución**: IP de EC2 debe estar en MongoDB Atlas Network Access (0.0.0.0/0)
+
+**Problema**: Servicio no inicia  
+**Solución**: `sudo systemctl status usuario-service` y revisar logs
+
+## 📝 Historial de Migración
+
+Este proyecto fue migrado de:
+- ~~Oracle Cloud Database~~ → **MongoDB Atlas**
+- ~~IDs numéricos~~ → **ObjectId de MongoDB**
+- ~~IP temporal~~ → **IP Elástica permanente**
+
+## 👥 Contribución
 
 1. Fork del proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -am 'Agrega nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Crea un Pull Request
+2. Crea rama: `git checkout -b feature/nueva-funcionalidad`
+3. Commit: `git commit -m 'Agrega funcionalidad X'`
+4. Push: `git push origin feature/nueva-funcionalidad`
+5. Abre Pull Request
+
+## 📄 Licencia
+
+Este proyecto es parte del sistema HuertoHogar.
+
+---
+
+**Desarrollado por**: Equipo HuertoHogar  
+**Última actualización**: Noviembre 2025
