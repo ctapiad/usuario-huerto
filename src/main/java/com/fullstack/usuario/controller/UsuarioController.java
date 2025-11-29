@@ -128,6 +128,13 @@ public class UsuarioController {
         }
         return ResponseEntity.status(401).body(response);
     }
+
+    @Operation(summary = "Migrar contraseñas en texto plano a BCrypt (ejecutar una sola vez)")
+    @PostMapping("/usuarios/migrar-passwords")
+    public ResponseEntity<String> migrarContrasenas() {
+        String resultado = usuarioService.migrarContrasenas();
+        return ResponseEntity.ok(resultado);
+    }
 }
 
 

@@ -273,4 +273,40 @@ public class UsuarioService {
             return new LoginResponseDto(false, "Error en el servidor: " + e.getMessage(), null, null, null, null, null, null, null, null);
         }
     }
+
+    // Método temporal para migrar contraseñas en texto plano a BCrypt
+    public String migrarContrasenas() {
+        try {
+            List<UsuarioEntity> todosLosUsuarios = usuarioRepository.findAll();
+            int usuariosMigrados = 0;
+            int usuariosYaMigrados = 0;
+            
+            for (UsuarioEntity usuario : todosLosUsuarios) {
+                String password = usuario.getPassword();
+                
+                // Verificar si la contraseña ya está hasheada con BCrypt
+                // Los hashes de BCrypt comienzan con $2a$, $2b$ o $2y$
+                if (password != null && !password.startsWith("$2a$") && !password.startsWith("$2b$") && !password.startsWith("$2y$")) {
+                    // La contraseña está en texto plano, hashearla
+                    usuario.setPassword(passwordEncoder.encode(password));
+                    usuarioRepository.save(usuario);
+                    usuariosMigrados++;
+                    System.out.println("Contraseña migrada para usuario: " + usuario.getEmail());
+                } else {
+                    usuariosYaMigrados++;
+                }
+            }
+            
+            String mensaje = String.format(
+                "Migración completada. Usuarios migrados: %d, Usuarios ya con BCrypt: %d, Total: %d",
+                usuariosMigrados, usuariosYaMigrados, todosLosUsuarios.size()
+            );
+            System.out.println(mensaje);
+            return mensaje;
+        } catch (Exception e) {
+            String errorMsg = "Error durante la migración de contraseñas: " + e.getMessage();
+            System.out.println(errorMsg);
+            return errorMsg;
+        }
+    }
 }
