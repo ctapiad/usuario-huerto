@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.fullstack.usuario.model.Usuario;
+import com.fullstack.usuario.model.dto.LoginRequestDto;
+import com.fullstack.usuario.model.dto.LoginResponseDto;
 import com.fullstack.usuario.model.dto.UsuarioDto;
 import com.fullstack.usuario.model.entity.UsuarioEntity;
 import com.fullstack.usuario.repository.UsuarioRepository;
@@ -18,6 +21,8 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UsuarioService() {
     }
@@ -82,7 +87,8 @@ public class UsuarioService {
             // MongoDB genera automáticamente el ID, no lo establecemos
             usuarioNuevo.setNombre(usuario.getNombre());
             usuarioNuevo.setEmail(usuario.getEmail());
-            usuarioNuevo.setPassword(usuario.getPassword());
+            // Hashear la contraseña con BCrypt antes de guardarla
+            usuarioNuevo.setPassword(passwordEncoder.encode(usuario.getPassword()));
             usuarioNuevo.setFechaRegistro(usuario.getFechaRegistro() != null ? usuario.getFechaRegistro() : new Date());
             usuarioNuevo.setDireccion(usuario.getDireccion());
             usuarioNuevo.setTelefono(usuario.getTelefono());
@@ -135,7 +141,8 @@ public class UsuarioService {
                     usuarioExistente.setEmail(usuario.getEmail());
                 }
                 if (usuario.getPassword() != null) {
-                    usuarioExistente.setPassword(usuario.getPassword());
+                    // Hashear la contraseña si se está actualizando
+                    usuarioExistente.setPassword(passwordEncoder.encode(usuario.getPassword()));
                 }
                 if (usuario.getDireccion() != null) {
                     usuarioExistente.setDireccion(usuario.getDireccion());
@@ -229,5 +236,41 @@ public class UsuarioService {
         dto.setIdComuna(entity.getIdComuna());
         dto.setIdTipoUsuario(entity.getIdTipoUsuario());
         return dto;
+    }
+
+    // Método de autenticación de login
+    public LoginResponseDto login(LoginRequestDto loginRequest) {
+        try {
+            // Buscar usuario por email
+            Optional<UsuarioEntity> usuarioOpt = usuarioRepository.findByEmail(loginRequest.getEmail());
+            
+            if (!usuarioOpt.isPresent()) {
+                return new LoginResponseDto(false, "Usuario no encontrado", null, null, null, null, null, null, null, null);
+            }
+            
+            UsuarioEntity usuario = usuarioOpt.get();
+            
+            // Verificar la contraseña usando BCrypt
+            if (!passwordEncoder.matches(loginRequest.getPassword(), usuario.getPassword())) {
+                return new LoginResponseDto(false, "Contraseña incorrecta", null, null, null, null, null, null, null, null);
+            }
+            
+            // Login exitoso, retornar datos del usuario
+            return new LoginResponseDto(
+                true,
+                "Login exitoso",
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getEmail(),
+                usuario.getFechaRegistro(),
+                usuario.getDireccion(),
+                usuario.getTelefono(),
+                usuario.getIdComuna(),
+                usuario.getIdTipoUsuario()
+            );
+        } catch (Exception e) {
+            System.out.println("Error en el proceso de login: " + e.getMessage());
+            return new LoginResponseDto(false, "Error en el servidor: " + e.getMessage(), null, null, null, null, null, null, null, null);
+        }
     }
 }

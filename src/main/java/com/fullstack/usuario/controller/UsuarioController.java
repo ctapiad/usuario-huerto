@@ -7,7 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.fullstack.usuario.model.Usuario;
-
+import com.fullstack.usuario.model.dto.LoginRequestDto;
+import com.fullstack.usuario.model.dto.LoginResponseDto;
 import com.fullstack.usuario.model.dto.UsuarioDto;
 import com.fullstack.usuario.service.UsuarioService;
 
@@ -116,6 +117,16 @@ public class UsuarioController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(usuarios);
+    }
+
+    @Operation(summary = "Login de usuario")
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequest) {
+        LoginResponseDto response = usuarioService.login(loginRequest);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(401).body(response);
     }
 }
 
